@@ -11,12 +11,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 
 /**
  *
  * @author Home
  */
-public class Matrix {
+public class Matrix implements Serializable{
     private double[][] matrix;
     private int height, weight;
     
@@ -76,7 +77,7 @@ public class Matrix {
             file.createNewFile();
         }
         PrintWriter out = new PrintWriter(file.getAbsoluteFile());
-        out.print(matr.getHeight()+" "+matr.getWeight()+'\n');
+        out.print(matr.getHeight()+" "+matr.getWeight()+" " + '\n');
         try {
             for(int i=0;i<matr.getHeight();i++){
                 for(int j=0;j<matr.getWeight();j++){
@@ -99,5 +100,13 @@ public class Matrix {
         String c = br.readLine();
         String[] s = c.split(" ");
         Matrix matr = new Matrix(new Integer(s[0]),new Integer(s[1]));
+        for(int i = 0;i<matr.getHeight();i++){
+            c = br.readLine();
+            String[] s1 = c.split(" ");
+            for(int j = 0 ;j<matr.getWeight();j++){
+                matr.setElement(i, j,new Double(s1[j]));
+            }
+        }
+        return matr;
     }
 }
