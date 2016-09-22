@@ -5,7 +5,10 @@
  */
 package tsp_lab1;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -18,7 +21,7 @@ public class Matrix {
     private int height, weight;
     
     public Matrix (int height, int weight){
-        this.matrix = new double[weight][height];
+        this.matrix = new double[height][weight];
         this.height = height;
         this.weight = weight;
         for(int i=0; i<height;i++){
@@ -29,7 +32,7 @@ public class Matrix {
     }
     
     public Matrix (int height, int weight, double[][] Matr){
-        this.matrix = new double[weight][height];
+        this.matrix = new double[height][weight];
         this.height = height;
         this.weight = weight;
         for(int i=0; i<height;i++){
@@ -66,19 +69,20 @@ public class Matrix {
         return res;
     }
     
-    public static void save(Matrix matr){
-        File file = new File("outMatr");
+    public static void save(Matrix matr,String filename){
+        File file = new File(filename);
     try {
         if(!file.exists()){
             file.createNewFile();
         }
         PrintWriter out = new PrintWriter(file.getAbsoluteFile());
+        out.print(matr.getHeight()+" "+matr.getWeight()+'\n');
         try {
             for(int i=0;i<matr.getHeight();i++){
                 for(int j=0;j<matr.getWeight();j++){
-                    out.print(" " + matr.getElement(i, j));
+                    out.print(matr.getElement(i, j) + " ");
                 }
-                out.print('\n');
+            out.print('\n');
             }
         } finally {
             out.close();
@@ -88,7 +92,12 @@ public class Matrix {
     }
     }
     
-    public static Matrix load(){
-        
+    public static Matrix load(String filename) throws FileNotFoundException, IOException{
+        File file = new File(filename);
+        FileReader fr = new FileReader(file);
+        BufferedReader br = new BufferedReader(fr);
+        String c = br.readLine();
+        String[] s = c.split(" ");
+        Matrix matr = new Matrix(new Integer(s[0]),new Integer(s[1]));
     }
 }
