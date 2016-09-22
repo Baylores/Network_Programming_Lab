@@ -12,9 +12,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -93,11 +94,10 @@ public class Server {
 	 * 
 	 */
 	private class Connection extends Thread {
-		private BufferedReader in;
-		private PrintWriter out;
+		private ObjectInputStream in;
+		private ObjectOutputStream out;
 		private Socket socket;
 	
-		private String name = "";
 	
 		/**
 		 * Инициализирует поля объекта и получает имя пользователя
@@ -109,9 +109,8 @@ public class Server {
 			this.socket = socket;
 	
 			try {
-				in = new BufferedReader(new InputStreamReader(
-						socket.getInputStream()));
-				out = new PrintWriter(socket.getOutputStream(), true);
+				in = new ObjectInputStream(socket.getInputStream());
+				out = new ObjectOutputStream(socket.getOutputStream());
 	
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -128,39 +127,17 @@ public class Server {
 		 */
 		@Override
 		public void run() {
-			try {
-				name = in.readLine();
-				// Отправляем всем клиентам сообщение о том, что подключился новый пользователь
-				synchronized(connections) {
-					Iterator<Connection> iter = connections.iterator();
-					while(iter.hasNext()) {
-						((Connection) iter.next()).out.println("Пользователь "+ name + " подключился");
-					}
-				}
-				
-				String str = "";
-				while (true) {
-					str = in.readLine();
-					if(str.equals("exit")) break;
-					
-					// Отправляем всем клиентам очередное сообщение
-					synchronized(connections) {
-						Iterator<Connection> iter = connections.iterator();
-						while(iter.hasNext()) {
-							((Connection) iter.next()).out.println("Сообщнение от пользователя " + name + ": " + str);
-						}
-					}
-				}
-				
-				synchronized(connections) {
-					Iterator<Connection> iter = connections.iterator();
-					while(iter.hasNext()) {
-						((Connection) iter.next()).out.println("Пользователь " + name + " отключился");
-					}
-				}
+			try {				
+                            Matrix matr = (Matrix) in.readObject();
+                            Matrix matr1 = (Matrix) in.readObject();
+                            Matrix res = Matrix.sum(matr, matr1);
+                            out.writeObject(res);
+                            out.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
-			} finally {
+			} catch (ClassNotFoundException ex) {
+                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                    } finally {
 				close();
 			}
 		}
